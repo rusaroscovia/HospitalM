@@ -19,10 +19,10 @@ springdoc.swagger-ui.try-it-out-enabled=true
 springdoc.show-actuator=false
 
 # JWT
-jwt.secret=your-secret-key-must-be-at-least-32-characters
+jwt.secret=your-secret-key-must-be-at-least-32-characters-long
 jwt.expiration-ms=900000
 
-# OAuth2 Google
+# OAuth2 Google - get credentials from https://console.cloud.google.com
 spring.security.oauth2.client.registration.google.client-id=YOUR_GOOGLE_CLIENT_ID
 spring.security.oauth2.client.registration.google.client-secret=YOUR_GOOGLE_CLIENT_SECRET
 spring.security.oauth2.client.registration.google.scope=openid,profile,email
