@@ -1,5 +1,6 @@
 package com.springboot.example.springbootappllication.Appointment;
 
+import com.springboot.example.springbootappllication.Response.AddResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,7 +18,7 @@ public class AppointmentController {
     }
 
     @PostMapping
-    public ResponseEntity<Appointment> createAppointment(@RequestBody AppointmentRequest request) {
+    public ResponseEntity<AddResponse> createAppointment(@RequestBody AppointmentRequest request) {
         return new ResponseEntity<>(bookingService.createAppointment(request), HttpStatus.CREATED);
     }
 

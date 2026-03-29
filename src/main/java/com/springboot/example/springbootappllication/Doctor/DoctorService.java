@@ -20,7 +20,7 @@ public class DoctorService {
 
     public AddResponse addDoctor(DoctorDto doctorDto) {
         doctorRepository.save(doctorMapper.mapToEntity(doctorDto));
-        return new AddResponse(doctorDto.getName() + " successfully added", HttpStatus.ACCEPTED);
+        return new AddResponse("Dr. " + doctorDto.getName() + " successfully added", HttpStatus.ACCEPTED);
     }
 
     public Doctor getDoctor(Long id) {
