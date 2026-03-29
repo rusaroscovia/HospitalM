@@ -13,7 +13,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -26,13 +25,16 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsServiceImpl userDetailsService;
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final PasswordEncoder passwordEncoder;
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
                           UserDetailsServiceImpl userDetailsService,
-                          OAuth2SuccessHandler oAuth2SuccessHandler) {
+                          OAuth2SuccessHandler oAuth2SuccessHandler,
+                          PasswordEncoder passwordEncoder) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.userDetailsService = userDetailsService;
         this.oAuth2SuccessHandler = oAuth2SuccessHandler;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Bean
@@ -58,15 +60,9 @@ public class SecurityConfig {
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
     public DaoAuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(userDetailsService);
-        provider.setPasswordEncoder(passwordEncoder());
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder);
         return provider;
     }
 
