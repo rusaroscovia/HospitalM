@@ -1,117 +1,126 @@
-# Spring Boot E-Commerce API
+# Hospital Management API
 
-This project is a Spring Boot RESTful API designed using a layered architecture. It manages three main domains:
+A Spring Boot RESTful API for managing hospital operations including patients, doctors, and appointments. Secured with Spring Security, JWT authentication, and OAuth2 (Google) login.
 
-Product
-Customer
-Order
+## Tech Stack
 
-The application follows best practices such as DTO mapping, validation, and secure API design.
+- Java 21
+- Spring Boot 4.x
+- Spring Security + JWT (JJWT)
+- OAuth2 / Google Login
+- Spring Data JPA + Hibernate
+- PostgreSQL
+- MapStruct
+- Lombok
+- Springdoc OpenAPI (Swagger UI)
 
-# Tech Stack & Dependencies
-
-The project is built using the following dependencies:
-
-#### 🔹 Core Dependencies
-- Spring Boot Starter Web :Used to build RESTful APIs and handle HTTP requests/responses.
-- Spring Boot Starter Data JPA :Provides ORM support using Hibernate for database operations.
-- Spring Boot Starter Validation :Enables validation using annotations like @NotNull, @Email, etc.
-- Spring Boot Starter Security :Adds authentication and authorization to secure endpoints.
-- Spring Boot DevTools :Improves development experience with auto-restart and live reload.
-#### 🔹 Additional Libraries
-Lombok
-Reduces boilerplate code using annotations like @Getter, @Setter, @Builder.
-MapStruct
-Used for mapping between Entities and DTOs efficiently.
-#### 🔹 Database
-PostgreSQL Driver
-Connects the application to a PostgreSQL database.
 ## Project Structure
 
-The project follows a layered architecture, organized by feature modules:
+```
+src/main/java/com/springboot/example/springbootappllication/
+├── Auth/               # Security: User, JWT, filters, OAuth2
+├── Patient/            # Patient CRUD
+├── Doctor/             # Doctor CRUD
+├── Appointment/        # Appointment booking (Patient + Doctor)
+├── Enum/               # Specialization enum
+├── Exceptions/         # Global exception handling
+├── Response/           # Shared response DTOs
+└── Config/             # Security + OpenAPI config
+```
 
-src/main/java/com/example/project
-│
-├── product/
-│   ├── controller
-│   ├── service
-│   ├── repository
-│   ├── entity
-│   ├── dto
-│   └── mapper
-│
-├── customer/
-│   ├── controller
-│   ├── service
-│   ├── repository
-│   ├── entity
-│   ├── dto
-│   └── mapper
-│
-├── order/
-│   ├── controller/
-│   ├── service/
-│   ├── repository/
-│   ├── entity/
-│   ├── dto/
-│   └── mapper/
-│
-└── Enum/ 
-|
-|__ Exception/
+## Domains
 
-## Layered Architecture (Monolithic Architecture)
+| Domain      | Description                                      |
+|-------------|--------------------------------------------------|
+| Patient     | Manage patient records (name, email, diagnosis)  |
+| Doctor      | Manage doctors with specialization and fees      |
+| Appointment | Book appointments linking patients to doctors    |
 
-Each module (/product, /customer, /order) follows the same structure:
+## Security
 
-1. Controller Layer:
-Handles HTTP requests.
-Exposes REST endpoints.
+- JWT stateless authentication
+- Role-based access control (`ROLE_USER`, `ROLE_ADMIN`)
+- OAuth2 login via Google
+- `DELETE` endpoints restricted to `ROLE_ADMIN`
 
-2. Service Layer:
-Contains business logic.
-Communicates between controller and repository.
+## Default Users (seeded on startup)
 
-3. Repository Layer:
-Interfaces extending JpaRepository.
-Handles database operations.
+| Username | Password  | Role       |
+|----------|-----------|------------|
+| admin    | admin123  | ROLE_ADMIN |
+| user     | user123   | ROLE_USER  |
 
-5. Entity Layer:
-Represents database tables using JPA annotations.
+## API Endpoints
 
-6. DTO (Data Transfer Object):
-Used to transfer data between layers.
-Prevents exposing entity directly.
+### Auth
+| Method | Endpoint          | Description              | Auth Required |
+|--------|-------------------|--------------------------|---------------|
+| POST   | /api/auth/login   | Login and receive JWT    | No            |
+| GET    | /api/auth/me      | Get current user profile | Yes           |
 
-7. Mapper Layer:
-Uses MapStruct to convert:
-Entity ↔ DTO
+### Patients
+| Method | Endpoint          | Description         | Role Required |
+|--------|-------------------|---------------------|---------------|
+| POST   | /patients         | Add patient         | Any           |
+| GET    | /patients         | Get all patients    | Any           |
+| GET    | /patients/{id}    | Get patient by ID   | Any           |
+| GET    | /patients/name    | Get patient by name | Any           |
+| PUT    | /patients         | Update patient      | Any           |
+| DELETE | /patients/{id}    | Delete patient      | ADMIN         |
 
+### Doctors
+| Method | Endpoint          | Description        | Role Required |
+|--------|-------------------|--------------------|---------------|
+| POST   | /doctors          | Add doctor         | Any           |
+| GET    | /doctors          | Get all doctors    | Any           |
+| GET    | /doctors/{id}     | Get doctor by ID   | Any           |
+| GET    | /doctors/name     | Get doctor by name | Any           |
+| PUT    | /doctors          | Update doctor      | Any           |
+| DELETE | /doctors/{id}     | Delete doctor      | ADMIN         |
 
-## Prerequisites
- - Java 17+
- - Maven
- - PostgreSQL
+### Appointments
+| Method | Endpoint              | Description             | Role Required |
+|--------|-----------------------|-------------------------|---------------|
+| POST   | /appointments         | Book appointment        | Any           |
+| GET    | /appointments         | Get all appointments    | Any           |
+| GET    | /appointments/{id}    | Get appointment by ID   | Any           |
 
-* Run the Application
-     - mvn spring-boot:run
+## Running the App
 
-* Or using packaged jar:
+1. Create a PostgreSQL database: `CREATE DATABASE hospital_db;`
+2. Copy `application.properties.example` to `application.properties` and fill in your values
+3. Run:
+```bash
+mvn spring-boot:run
+```
 
-     - mvn clean install
-     - java -jar target/app.jar
+## Swagger UI
 
-## Key Features
- - Modular structure by domain (product, customer, order)
- - Clean separation of concerns
- - DTO-based architecture with MapStruct
- - Input validation
- - PostgreSQL integration
- - API documentation with Swagger/OpenAPI
- - Global exception handling
+```
+http://localhost:8082/swagger-ui/index.html
+```
 
-## Future Improvements
- - Add JWT Authentication
- - Implement pagination & sorting
- - Secure endpoints with Spring Security
- - Unit & integration testing
+## Testing with Postman
+
+**1. Login:**
+```
+POST http://localhost:8082/api/auth/login
+Body: { "username": "admin", "password": "admin123" }
+```
+
+**2. Use token:**
+```
+GET http://localhost:8082/patients
+Authorization: Bearer <token>
+```
+
+**3. Google OAuth2 (browser):**
+```
+http://localhost:8082/oauth2/authorization/google
+```
+
+## Setup Notes
+
+- Copy `src/main/resources/application.properties.example` to `application.properties`
+- Never commit your real `application.properties` — it is in `.gitignore`
+- For Google OAuth2, register your app at [Google Cloud Console](https://console.cloud.google.com) and set redirect URI to `http://localhost:8082/login/oauth2/code/google`
